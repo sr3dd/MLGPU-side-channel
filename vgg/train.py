@@ -49,11 +49,12 @@ def train(model,
     if train_on_gpu:
         model = model.to('cuda')
 
+    gpu_count = 0
+    
     # Number of gpus
     if train_on_gpu:
         gpu_count = cuda.device_count()
-
-    print(f'{gpu_count} gpus detected.')
+        print(f'{gpu_count} gpus detected.')
 
     if gpu_count > 1:
         multi_gpu = True
