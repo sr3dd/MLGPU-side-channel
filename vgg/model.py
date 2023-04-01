@@ -5,8 +5,13 @@ import torch
 class Vgg16Mnist:
 
     def __init__(self, pretrained: bool=True):
-        self.pretrained = pretrained
-        self.vgg16 = models.vgg16_bn(pretrained=pretrained)
+        
+        if pretrained:
+            weights = models.VGG16_BN_Weights.DEFAULT
+        else:
+            weights = 'DEFAULT'
+
+        self.vgg16 = models.vgg16_bn(weights=weights)
 
     def freeze_layers(self):
         # Freeze VGG16 model weights (all layers)
