@@ -24,7 +24,7 @@ def mnist_dataloader(batch_size_train:int=64, batch_size_test:int=64) -> Tuple[D
     # https://discuss.pytorch.org/t/how-to-get-mnist-data-from-torchvision-with-three-channels-for-some-pretrained-model-like-vgg/21872
 
     train_loader = DataLoader(
-        torchvision.datasets.MNIST('/files/',
+        torchvision.datasets.MNIST('files/',
                                    train=True,
                                    download=True,
                                    transform=torchvision.transforms.Compose([
@@ -38,7 +38,7 @@ def mnist_dataloader(batch_size_train:int=64, batch_size_test:int=64) -> Tuple[D
         shuffle=True)
 
     test_loader = DataLoader(
-        torchvision.datasets.MNIST('/files/',
+        torchvision.datasets.MNIST('files/',
                                    train=False,
                                    download=True,
                                    transform=torchvision.transforms.Compose([
