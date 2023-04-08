@@ -10,6 +10,7 @@ import time
 
 class Inferencer:
     def __init__(self,
+                 custom_batch_size: int = None,
                  weight_path: str = "./MNIST_VGG16_transfer.pt",
                  image_number: int = 0,
                  top_preds: int = 5
@@ -20,14 +21,17 @@ class Inferencer:
         self._test_on_gpu = torch.cuda.is_available()
         self._test_data = None
 
-        if self._test_on_gpu == True:       # CPU: 16, GPU: 64
-            self.batch_size = 64
+        if custom_batch_size:
+            self.batch_size = custom_batch_size
         else:
-            self.batch_size = 16
+            if self._test_on_gpu == True:       # CPU: 16, GPU: 64
+                self.batch_size = 64
+            else:
+                self.batch_size = 16
 
     def load_test_data(self) -> DataLoader:
         # Import the MNIST data for test
-        _, test_data = mnist_dataloader()
+        _, test_data = mnist_dataloader(batch_size_test=self.batch_size)
         self._test_data = test_data
 
     def graphic_output(self, tensors_sample, topclass):
@@ -77,4 +81,5 @@ class Inferencer:
 
                 # Print accuracy and bechmarks
                 accuracy = (sum(topclass[:, 0].cpu().numpy() == ground_truth) / self.batch_size) * 100
-                print(f"[INFERENCE] {self.batch_size} images analised in {final_time-initial_time} seconds. Accuracy: {accuracy}%")
+                print(f"[INFERENCE] {self.batch_size} images analyzed in {final_time-initial_time} seconds. Accuracy: {accuracy}%")
+                break
