@@ -51,8 +51,8 @@ class Inferencer:
         with torch.no_grad():
 
             # Load the transfer learning weights into the model
-            vgg16 = Resnet18Mnist(pretrained=False)
-            vgg16.set_test_mode(weight_path=self.weight_path)
+            resnet18 = Resnet18Mnist(pretrained=False)
+            resnet18.set_test_mode(weight_path=self.weight_path)
 
             # Iterate over the test dataloader
             for data, target in self._test_data:
@@ -65,7 +65,7 @@ class Inferencer:
 
                 # Forward pass
                 initial_time = time.time()
-                output = vgg16.evaluate(tensors_sample)
+                output = resnet18.evaluate(tensors_sample)
                 final_time = time.time()
 
                 eval_proba = torch.exp(output)

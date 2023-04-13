@@ -5,7 +5,7 @@ from resnet.mnist_dataloader import mnist_dataloader
 from torch import optim
 from torch import nn
 
-def transfer_learning(train_epochs:int=20, early_stop_epochs:int=3, save_file_name:str="MNIST_RESNET18.pt"):
+def train_resnet(train_epochs:int=20, early_stop_epochs:int=3, save_file_name:str="MNIST_RESNET18.pt"):
     '''
     INFO
     ----
@@ -50,4 +50,4 @@ def transfer_learning(train_epochs:int=20, early_stop_epochs:int=3, save_file_na
 
 
 if __name__ == '__main__':
-    transfer_learning()
+    train_resnet()
