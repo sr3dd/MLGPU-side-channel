@@ -1,53 +1,83 @@
-from resnet.model import Resnet18Mnist
-from resnet.train import train
-from resnet.mnist_dataloader import mnist_dataloader
+import time
+import numpy as np
+import torch
+import torch.nn.functional as F
+from torch.utils.data import DataLoader
+from torchvision import datasets
+from torchvision import transforms
 
-from torch import optim
-from torch import nn
+from rnet import ConvNet, compute_accuracy
 
-def train_resnet(train_epochs:int=20, early_stop_epochs:int=3, save_file_name:str="MNIST_RESNET18.pt"):
-    '''
-    INFO
-    ----
-    From a RESNET18 net pretrained on Imagenet, we iterate n epochs to train the net in MNIST.
-    It serves for obtaining valid weights. No return allowed.
-    :param train_epochs: number of epochs to train
-    :param early_stop_epochs: stop epochs if there is no loss improvement
-    :param save_file_name: save weights as a *.pt file
-    :return there is no return. Weights are generated in the wkdir under save_file_name denomination.
-    '''
+if torch.cuda.is_available():
+    torch.backends.cudnn.deterministic = True
 
-    # Initialise the Resnet18 model (pretrained)
-    resnet18_mnist = Resnet18Mnist()
+# Device
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
-    # Prepare the model for transfer learning training
-    resnet18_mnist.training_prep()
+# Hyperparameters
+random_seed = 123
+learning_rate = 0.01
+num_epochs = 10
+batch_size = 128
 
-    # Retrieve the model for training
-    resnet18 = resnet18_mnist.model()
+# Architecture
+num_classes = 10
 
-    # Loss and optimizer
-    loss_function = nn.NLLLoss()
-    optimizer = optim.Adam(resnet18.parameters())
+train_dataset = datasets.MNIST(root='data', 
+                               train=True, 
+                               transform=transforms.ToTensor(),
+                               download=True)
 
-    # Import train_loader and valid_loader
-    train_loader, valid_loader = mnist_dataloader()
+train_loader = DataLoader(dataset=train_dataset, 
+                          batch_size=batch_size, 
+                          shuffle=True)
 
-    # Train: weights are generated in the working directory
-    model, history = train(model=resnet18,
-                           criterion=loss_function,
-                           optimizer=optimizer,
-                           train_loader=train_loader,
-                           valid_loader=valid_loader,
-                           save_file_name=save_file_name,
-                           max_epochs_stop=early_stop_epochs,
-                           n_epochs=train_epochs,
-                           print_every=2
-                           )
+# Checking the dataset
+for images, labels in train_loader:  
+    print('Image batch dimensions:', images.shape)
+    print('Image label dimensions:', labels.shape)
+    break
 
-    # For analyzing loss and accuracy curves
-    history.to_csv("MNIST_RESNET18.csv", sep=",", index=False)
+ 
+torch.manual_seed(random_seed)
+model = ConvNet(num_classes=num_classes)
+model = model.to(device)
+    
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)  
 
 
-if __name__ == '__main__':
-    train_resnet()
+start_time = time.time()
+for epoch in range(num_epochs):
+    model = model.train()
+    for batch_idx, (features, targets) in enumerate(train_loader):
+        
+        features = features.to(device)
+        targets = targets.to(device)
+        
+        ### FORWARD AND BACK PROP
+        logits, probas = model(features)
+        cost = F.cross_entropy(logits, targets)
+        optimizer.zero_grad()
+        
+        cost.backward()
+        
+        ### UPDATE MODEL PARAMETERS
+        optimizer.step()
+        
+        ### LOGGING
+        if not batch_idx % 50:
+            print ('Epoch: %03d/%03d | Batch %03d/%03d | Cost: %.4f' 
+                   %(epoch+1, num_epochs, batch_idx, 
+                     len(train_loader), cost))
+
+    model = model.eval() # eval mode to prevent upd. batchnorm params during inference
+    with torch.set_grad_enabled(False): # save memory during inference
+        print('Epoch: %03d/%03d training accuracy: %.2f%%' % (
+              epoch+1, num_epochs, 
+              compute_accuracy(model, train_loader, device)))
+
+    print('Time elapsed: %.2f min' % ((time.time() - start_time)/60))
+    
+print('Total Training Time: %.2f min' % ((time.time() - start_time)/60))
+
+torch.save(model, 'Resnet18_mnist.pt')
