@@ -6,7 +6,7 @@ class Resnet18Mnist:
 
     def __init__(self):
 
-        self.resnet18 = models.resnet18(num_classes=10)
+        self.resnet18 = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
 
     def freeze_layers(self):
         # Freeze ResNet18 model weights (all layers)
@@ -17,8 +17,7 @@ class Resnet18Mnist:
         # change input layer needs to accept single channel instead of 3 
         # (MNIST images are single-channel = grayscale, whereas 
         # ImageNet are 3-channels = RGB).
-        pass
-        #self.resnet18.conv1 = nn.Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+        self.resnet18.fc = nn.Linear(in_features=512, out_features=10)
 
     def training_prep(self):
         # Prepare the net for transfer learning classifier-only training
