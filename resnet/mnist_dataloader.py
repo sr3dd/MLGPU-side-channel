@@ -28,8 +28,8 @@ def mnist_dataloader(batch_size_train:int=64, batch_size_test:int=64) -> Tuple[D
                                    train=True,
                                    download=True,
                                    transform=torchvision.transforms.Compose([
-                                       torchvision.transforms.Resize(size=256),
-                                       torchvision.transforms.Grayscale(3),
+                                  #     torchvision.transforms.Resize(size=28),
+                                  #     torchvision.transforms.Grayscale(3),
                                        torchvision.transforms.ToTensor(),
                                        torchvision.transforms.Normalize(
                                            _MEAN_MNIST, _STD_MNIST)
@@ -42,8 +42,8 @@ def mnist_dataloader(batch_size_train:int=64, batch_size_test:int=64) -> Tuple[D
                                    train=False,
                                    download=True,
                                    transform=torchvision.transforms.Compose([
-                                       torchvision.transforms.Resize(size=256),
-                                       torchvision.transforms.Grayscale(3),
+                            #          torchvision.transforms.Resize(size=28),
+                            #           torchvision.transforms.Grayscale(3),
                                        torchvision.transforms.ToTensor(),
                                        torchvision.transforms.Normalize(
                                            _MEAN_MNIST, _STD_MNIST)

@@ -51,7 +51,7 @@ class Inferencer:
         with torch.no_grad():
 
             # Load the transfer learning weights into the model
-            resnet18 = Resnet18Mnist(pretrained=False)
+            resnet18 = Resnet18Mnist()
             resnet18.set_test_mode(weight_path=self.weight_path)
 
             # Iterate over the test dataloader
