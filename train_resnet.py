@@ -27,8 +27,8 @@ def train_resnet(train_epochs:int=20, early_stop_epochs:int=3, save_file_name:st
     resnet18 = resnet18_mnist.model()
 
     # Loss and optimizer
-    loss_function = nn.NLLLoss()
-    optimizer = optim.Adam(resnet18.parameters())
+    loss_function = nn.CrossEntropyLoss()
+    optimizer = optim.RMSprop(resnet18.parameters())
 
     # Import train_loader and valid_loader
     train_loader, valid_loader = mnist_dataloader()

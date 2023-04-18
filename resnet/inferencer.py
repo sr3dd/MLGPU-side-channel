@@ -51,8 +51,9 @@ class Inferencer:
         with torch.no_grad():
 
             # Load the transfer learning weights into the model
-            resnet18 = Resnet18Mnist()
-            resnet18.set_test_mode(weight_path=self.weight_path)
+            self.resnet18 = Resnet18Mnist()
+            self.resnet18.set_test_mode(weight_path=self.weight_path)
+            self.resnet18.resnet18.eval()
 
             # Iterate over the test dataloader
             for data, target in self._test_data:
@@ -61,11 +62,12 @@ class Inferencer:
                     data, target = data.cuda(), target.cuda()
 
                 tensors_sample = data[0:self.batch_size, :, :, :]
+                #tensors_sample = data[0:self.batch_size]
                 ground_truth = target.cpu().numpy()[:self.batch_size]
 
                 # Forward pass
                 initial_time = time.time()
-                output = resnet18.evaluate(tensors_sample)
+                output = self.resnet18.evaluate(tensors_sample)
                 final_time = time.time()
 
                 eval_proba = torch.exp(output)
@@ -74,10 +76,10 @@ class Inferencer:
                 topk, topclass = eval_proba.topk(self.top_preds, dim=1)
 
                 # Save a sample of MNIST test to a fodler
-                self.graphic_output(
-                                    tensors_sample=tensors_sample,
-                                    topclass=topclass
-                                    )
+                # self.graphic_output(
+                #                     tensors_sample=tensors_sample,
+                #                     topclass=topclass
+                #                     )
 
                 # Print accuracy and bechmarks
                 accuracy = (sum(topclass[:, 0].cpu().numpy() == ground_truth) / self.batch_size) * 100

@@ -6,7 +6,9 @@ class Resnet18Mnist:
 
     def __init__(self):
 
-        self.resnet18 = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
+        # self.resnet18 = models.resnet18(weights=models.ResNet18_Weights.DEFAULT,
+        #                     num_classes=10)
+        self.resnet18 = models.resnet18(num_classes=10)
 
     def freeze_layers(self):
         # Freeze ResNet18 model weights (all layers)
@@ -19,14 +21,14 @@ class Resnet18Mnist:
         # ImageNet are 3-channels = RGB).
         #self.resnet18.fc = nn.Linear(in_features=512, out_features=10)
         self.resnet18.conv1 = nn.Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
-        self.resnet18.fc = nn.Linear(in_features=512, out_features=10)
+        #self.resnet18.fc = nn.Linear(in_features=512, out_features=10)
 
     def training_prep(self):
         # Prepare the net for transfer learning classifier-only training
         self.freeze_layers()
         self.add_classifier()
 
-    def model(self) -> models.vgg16_bn:
+    def model(self) -> models.resnet:
         # Return the model only
         return self.resnet18
 
@@ -36,7 +38,8 @@ class Resnet18Mnist:
         else:
             device = "cpu"
 
-        self.training_prep()
+        #self.training_prep()
+        self.add_classifier()
         self.resnet18.load_state_dict(torch.load(weight_path, map_location=torch.device(device)))
 
         if torch.cuda.is_available():
