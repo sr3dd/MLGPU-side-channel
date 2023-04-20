@@ -20,7 +20,7 @@ def generate_trace_file (file_path: str, out_dir: str, batch_size: int):
         inner_list.append(line)
 
     for i, inn in enumerate(outer_list[1:]):
-        with open(f'data/traces/resnet/{i}_batch_{batch_size}.tsv', 'w') as f:
+        with open(f'{out_dir}/{i}_batch_{batch_size}.tsv', 'w') as f:
             f.writelines(inn)
 
 if __name__ == '__main__':
@@ -29,4 +29,3 @@ if __name__ == '__main__':
         print("Script requires 3 arguments: input file path, output dir path and batch size")
 
     generate_trace_file(sys.argv[1], sys.argv[2], sys.argv[3])
-    
